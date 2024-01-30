@@ -1,0 +1,36 @@
+alias: simul_presence
+sequence:
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ 'light' in entity_id }}"
+        sequence:
+          - service: light.turn_on
+            target:
+              entity_id: "{{ entity_id }}"
+          - delay:
+              minutes: "{{ range(10, 50) | random }}"
+          - service: light.turn_off
+            target:
+              entity_id: "{{ entity_id }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ 'switch' in entity_id }}"
+        sequence:
+          - service: switch.turn_on
+            target:
+              entity_id: "{{ entity_id }}"
+          - delay:
+              minutes: "{{ range(10, 50) | random }}"
+          - service: switch.turn_off
+            target:
+              entity_id: "{{ entity_id }}"
+fields:
+  entity_id:
+    selector:
+      entity: {}
+    name: entity_id
+    description: nom de l'entité
+    required: true
+mode: parallel
+max: 20
