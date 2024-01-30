@@ -1,0 +1,44 @@
+alias: Automatisation Lumière Aléatoire Parallèle
+description: >-
+  Allume et éteint les lumières ou switch de manière aléatoire entre le coucher
+  et le lever du soleil si l'alarme est mise.
+trigger:
+  - platform: time_pattern
+    minutes: /20
+condition:
+  - condition: state
+    entity_id: alarm_control_panel.alarme_maison_alarm
+    state:
+      - armed
+      - armed_away
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+action:
+  - variables:
+      entities_list:
+        - light.lustre_buffet
+        - light.lampe_pierre_light
+        - light.lustre_buffet
+        - switch.sw1
+        - switch.sw2
+        - switch.sw3
+        - switch.plafond_chambre_rdc_switch_1
+  - choose:
+      - conditions:
+          - condition: sun
+            before: sunrise
+            after: sunset
+        sequence:
+          - service: script.simul_presence
+            data:
+              entity_id: "{{ entities_list | random }}"
+    default:
+      - service: script.eteindre_toutes_les_entites
+        data:
+          entities_list: "{{ entities_list }}"
+trace:
+  stored_traces: 30
+mode: parallel
+max: 10
